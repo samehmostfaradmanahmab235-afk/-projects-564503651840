@@ -4,6 +4,10 @@ import { CONTACT_INFO, STORYBOARD_DATA } from './constants';
 import { geminiService } from './services/geminiService';
 import { Scene, GeneratedImage } from './types';
 
+const RefreshIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+);
+
 const WhatsAppIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" className="text-white">
     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.94 3.675 1.438 5.662 1.439h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
@@ -28,23 +32,22 @@ const App: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isFirstInteraction, setIsFirstInteraction] = useState(true);
   const [chatMessages, setChatMessages] = useState<{role: 'user' | 'model', text: string}[]>([
-    {role: 'model', text: `أهلاً بك في المجمّع الحديث! أنا عمار، المساعد الذكي للمجموعة. يسعدنا انضمامك لمجموعتنا الرسمية على الواتساب عبر الرابط: ${CONTACT_INFO.whatsappGroup}. كيف يمكنني خدمتك اليوم؟`}
+    {role: 'model', text: `أهلاً بك في المجمّع الحديث! أنا عمار، المساعد الذكي للمصنع. جودة صناعتنا هي سر تميزنا. هل تريد أن أصمم لك ستوري بورد احترافي لمشروعك الآن؟ انضم لمجموعتنا للحصول على العروض: ${CONTACT_INFO.whatsappGroup}`}
   ]);
   const [userInput, setUserInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [highQualityMode, setHighQualityMode] = useState(false);
+  const [isRegeneratingAll, setIsRegeneratingAll] = useState(false);
   
   const chatRef = useRef<any>(null);
 
   useEffect(() => {
     chatRef.current = geminiService.createChat(
-      `أنت "عمار"، المساعد الذكي والناطق الرسمي لمصنع "المجمّع الحديث للأبواب السحابة" في عدن. 
-      هويتنا البصرية: الأحمر (أعلى)، الأخضر (أسفل)، البنفسجي (MCT).
-      المدير التسويقي: سامح مصطفى العبسي.
-      رابط مجموعة الواتساب: ${CONTACT_INFO.whatsappGroup}.
-      رقم الواتساب الفردي: ${CONTACT_INFO.whatsapp}.
-      الموقع: جولة دار سعد - جوار مدرسة زينب - قرب البريد الحديث.
-      قاعدة العمل: بمجرد بدء العميل للمحادثة، قم بتوليد الستوري بورد تلقائياً ليرى جودة أعمالنا. شجعهم دائماً على الانضمام للمجموعة للبقاء على اطلاع بآخر العروض.`
+      `أنت "عمار"، المساعد الذكي الرسمي لمصنع "المجمّع الحديث للأبواب السحابة" في عدن. 
+      هويتنا البصرية: الأحمر، الأخضر، والبنفسجي (MCT).
+      مديرنا التسويقي: سامح مصطفى العبسي.
+      موقعنا: جولة دار سعد - جوار مدرسة زينب.
+      مهمتك: الترحيب بالعملاء، دعوتهم للانضمام لمجموعة الواتساب (${CONTACT_INFO.whatsappGroup})، وشرح جودة أبوابنا السحابة الهيدروليكية والمتينة.
+      عندما يبدأ العميل الكلام، ابدأ فوراً بتوليد الستوري بورد لإظهار كفاءتنا.`
     );
   }, []);
 
@@ -59,8 +62,8 @@ const App: React.FC = () => {
     setIsFirstInteraction(false);
 
     if (isFirst) {
-      setChatMessages(prev => [...prev, {role: 'model', text: 'حياك الله! جاري الآن توليد صور الستوري بورد الخاصة بك لترى دقة تصاميمنا. يمكنك أيضاً الانضمام لمجموعتنا للحصول على خصومات حصرية.'}]);
-      STORYBOARD_DATA.forEach(s => handleGenerate(s.id));
+      setChatMessages(prev => [...prev, {role: 'model', text: 'حياك الله! جاري الآن تخيل وتوليد صور الستوري بورد الخاصة بك بذكاء MCT الاصطناعي...'}]);
+      handleRegenerateAll();
     }
 
     try {
@@ -68,38 +71,56 @@ const App: React.FC = () => {
       if (response.functionCalls) {
         for (const fc of response.functionCalls) {
           if (fc.name === 'generate_full_storyboard') {
-            STORYBOARD_DATA.forEach(s => handleGenerate(s.id));
-            setChatMessages(prev => [...prev, {role: 'model', text: 'أبشر! جاري توليد كامل الستوري بورد بلمسة عمار الإبداعية...'}]);
+            handleRegenerateAll();
+            setChatMessages(prev => [...prev, {role: 'model', text: 'تفضل، جاري توليد كامل الستوري بورد...'}]);
           } else if (fc.name === 'update_specific_scene') {
             handleGenerate(fc.args.sceneId);
-            setChatMessages(prev => [...prev, {role: 'model', text: `جاري تحديث المشهد رقم ${fc.args.sceneId}...`}]);
+            setChatMessages(prev => [...prev, {role: 'model', text: `أبشر، جاري تحديث المشهد رقم ${fc.args.sceneId}...`}]);
           }
         }
       } else {
         setChatMessages(prev => [...prev, {role: 'model', text: response.text}]);
       }
     } catch (error) {
-      setChatMessages(prev => [...prev, {role: 'model', text: 'عذراً، حدث خطأ في الشبكة. تواصل معنا عبر الواتساب مباشرة.'}]);
+      setChatMessages(prev => [...prev, {role: 'model', text: 'عذراً، حدث خطأ بسيط. يمكنك التواصل معنا مباشرة عبر الواتساب.'}]);
     } finally {
       setIsTyping(false);
     }
   };
 
+  const handleRegenerateAll = async () => {
+    setIsRegeneratingAll(true);
+    // Clear current images to show loading state for all
+    setGeneratedImages([]);
+    // Trigger generation for all scenes
+    const generationPromises = STORYBOARD_DATA.map(s => handleGenerate(s.id));
+    await Promise.all(generationPromises);
+    setIsRegeneratingAll(false);
+  };
+
   const handleGenerate = async (sceneId: number) => {
     const scene = STORYBOARD_DATA.find(s => s.id === sceneId);
     if (!scene) return;
-    setGeneratingIds(prev => [...prev, sceneId]);
+    
+    // Add to generating list
+    setGeneratingIds(prev => [...new Set([...prev, sceneId])]);
+    
     try {
-      const enhancedDescription = await geminiService.enhanceScript(scene.imageDescription);
-      const imageUrl = await geminiService.generateSceneImage(enhancedDescription, highQualityMode);
+      // Small delay or unique identifier to ensure variety if model cached previous results
+      const enhancedDescription = await geminiService.enhanceScript(`${scene.imageDescription} (Variation: ${Math.random().toString(36).substring(7)})`);
+      const imageUrl = await geminiService.generateSceneImage(enhancedDescription);
+      
       if (imageUrl) {
         setGeneratedImages(prev => {
           const filtered = prev.filter(img => img.sceneId !== sceneId);
           return [...filtered, { sceneId, url: imageUrl }];
         });
       }
-    } catch (error) {} 
-    finally { setGeneratingIds(prev => prev.filter(id => id !== sceneId)); }
+    } catch (error) {
+      console.error(`Error generating scene ${sceneId}:`, error);
+    } finally { 
+      setGeneratingIds(prev => prev.filter(id => id !== sceneId)); 
+    }
   };
 
   const getGeneratedUrl = (sceneId: number) => {
@@ -115,7 +136,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-bold overflow-x-hidden pb-24">
+    <div className="min-h-screen bg-slate-50 font-bold overflow-x-hidden pb-24 text-right" dir="rtl">
       {/* Brand Identity Header */}
       <header className="relative w-full shadow-2xl">
         <div className="flex h-20 md:h-32">
@@ -123,7 +144,7 @@ const App: React.FC = () => {
              <h1 className="text-3xl md:text-7xl font-black text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] tracking-tighter">المجمّع الحديث</h1>
              <div className="absolute inset-0 bg-white/5 pointer-events-none"></div>
           </div>
-          <div className="w-20 md:w-44 mct-purple-bg flex flex-col items-center justify-center border-r-2 border-white/20">
+          <div className="w-20 md:w-44 mct-purple-bg flex flex-col items-center justify-center border-l-2 border-white/20">
              <span className="text-white text-3xl md:text-5xl font-black italic">MCT</span>
           </div>
         </div>
@@ -132,7 +153,7 @@ const App: React.FC = () => {
              <p className="text-white text-xs md:text-xl font-black mb-1 opacity-80 uppercase tracking-widest">المدير التسويقي</p>
              <p className="text-white text-sm md:text-3xl font-black leading-tight">{CONTACT_INFO.manager}</p>
           </div>
-          <div className="flex-1 mct-green-bg border-t-4 border-white border-r-4 border-white p-4 flex flex-col justify-center">
+          <div className="flex-1 mct-green-bg border-t-4 border-white border-l-4 border-white p-4 flex flex-col justify-center">
              <h2 className="text-white text-xl md:text-4xl font-black mb-1">لصناعة الأبواب السحابة</h2>
              <h2 className="text-white text-xl md:text-4xl font-black mb-2 opacity-90">وأعمال الهناجر والستر</h2>
              <p className="text-white text-xs md:text-xl font-bold opacity-80 mt-1 flex items-center gap-3">
@@ -146,10 +167,10 @@ const App: React.FC = () => {
       {/* Hero Action Section */}
       <main className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16">
-          <div className="bg-white rounded-[3rem] shadow-2xl p-10 border-b-[12px] border-mct-red-bg flex flex-col justify-center">
+          <div className="bg-white rounded-[3rem] shadow-2xl p-10 border-b-[12px] border-mct-red-bg flex flex-col justify-center order-2 md:order-1">
             <h2 className="text-4xl md:text-5xl font-black text-slate-800 mb-6 leading-tight">الجودة تبدأ من الباب</h2>
             <p className="text-slate-600 mb-10 text-lg md:text-xl leading-relaxed font-bold">
-              مرحباً بكم في المجمّع الحديث. انضموا لمجموعتنا لمتابعة أحدث المشاريع والعروض الحصرية في عدن وجميع محافظات اليمن.
+              المجمّع الحديث هو وجهتكم الأولى للأبواب السحابة المتينة في عدن. انضموا لمجموعتنا لمتابعة كل جديد.
             </p>
             <div className="flex flex-col sm:flex-row gap-5">
                <button 
@@ -157,23 +178,23 @@ const App: React.FC = () => {
                 className="mct-purple-bg hover:bg-purple-900 text-white px-8 py-5 rounded-[1.5rem] font-black text-xl flex items-center justify-center gap-4 transition-all hover:scale-105 shadow-xl group"
               >
                 <GroupIcon />
-                رابط المجموعة
+                مجموعة الواتساب
               </button>
                <button 
                 onClick={openWhatsApp}
                 className="bg-green-600 hover:bg-green-700 text-white px-8 py-5 rounded-[1.5rem] font-black text-xl flex items-center justify-center gap-4 transition-all hover:scale-105 shadow-xl group"
               >
                 <WhatsAppIcon />
-                تواصل واتساب
+                تواصل مباشر
               </button>
             </div>
           </div>
-          <div className="relative rounded-[3rem] overflow-hidden shadow-2xl h-80 md:h-auto border-8 border-white group">
+          <div className="relative rounded-[3rem] overflow-hidden shadow-2xl h-80 md:h-auto border-8 border-white group order-1 md:order-2">
             <img src="https://images.unsplash.com/photo-1518152006812-edab29b069ac?auto=format&fit=crop&q=80&w=1200" alt="Rolling Shutters" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
             <div className="absolute inset-0 bg-gradient-to-t from-mct-purple-bg/90 via-transparent to-transparent flex items-end p-10">
                <div>
                   <p className="text-white font-black text-2xl md:text-3xl italic tracking-widest mb-2">MCT ADEN</p>
-                  <p className="text-white/80 font-bold text-sm uppercase">Modern Complex for Rolling Shutters Industry</p>
+                  <p className="text-white/80 font-bold text-sm uppercase">Modern Complex for Rolling Shutters</p>
                </div>
             </div>
           </div>
@@ -186,16 +207,21 @@ const App: React.FC = () => {
                  <SparklesIcon />
               </div>
               <div>
-                 <h3 className="text-3xl font-black text-slate-800 italic">ستوري بورد "عمار"</h3>
-                 <p className="text-slate-500 font-bold text-lg">تخيل إعلانك القادم بذكاء MCT الاصطناعي</p>
+                 <h3 className="text-3xl font-black text-slate-800 italic">ستوري بورد MCT</h3>
+                 <p className="text-slate-500 font-bold text-lg">شاهد كيف يحول عمار فكرتك إلى واقع بصري</p>
               </div>
            </div>
            <button 
-            onClick={() => STORYBOARD_DATA.forEach(s => handleGenerate(s.id))}
-            className="mct-red-bg hover:bg-red-700 text-white px-10 py-5 rounded-[1.5rem] font-black text-xl flex items-center gap-4 transition-all hover:scale-110 shadow-2xl active:scale-95"
+            onClick={handleRegenerateAll}
+            disabled={isRegeneratingAll}
+            className="mct-red-bg hover:bg-red-700 text-white px-10 py-5 rounded-[1.5rem] font-black text-xl flex items-center gap-4 transition-all hover:scale-110 shadow-2xl active:scale-95 disabled:opacity-70"
           >
-            <SparklesIcon />
-            توليد القصة كاملة
+            {isRegeneratingAll ? (
+              <div className="animate-spin w-6 h-6 border-4 border-white/20 border-t-white rounded-full"></div>
+            ) : (
+              <SparklesIcon />
+            )}
+            توليد القصة بالكامل
           </button>
         </div>
 
@@ -205,25 +231,39 @@ const App: React.FC = () => {
             <div key={scene.id} className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden group hover:-translate-y-4 transition-all duration-500 border border-slate-200/50">
               <div className="relative aspect-video bg-slate-900 overflow-hidden">
                 {getGeneratedUrl(scene.id) ? (
-                  <img src={getGeneratedUrl(scene.id)!} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
+                  <>
+                    <img src={getGeneratedUrl(scene.id)!} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
+                    <button 
+                      onClick={() => handleGenerate(scene.id)}
+                      disabled={generatingIds.includes(scene.id)}
+                      className="absolute top-4 left-4 bg-mct-red-bg/80 hover:bg-mct-red-bg text-white p-2.5 rounded-xl backdrop-blur-md transition-all shadow-xl z-10 disabled:opacity-50 active:scale-90"
+                      title="تحديث المشهد"
+                    >
+                      {generatingIds.includes(scene.id) ? (
+                        <div className="animate-spin w-5 h-5 border-2 border-white/20 border-t-white rounded-full"></div>
+                      ) : (
+                        <RefreshIcon />
+                      )}
+                    </button>
+                  </>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-white p-10 text-center bg-gradient-to-br from-slate-900 to-black relative">
                     {generatingIds.includes(scene.id) ? (
                       <div className="flex flex-col items-center">
                         <div className="animate-spin w-12 h-12 border-4 border-white/10 border-t-blue-500 rounded-full mb-4"></div>
-                        <p className="text-xs text-blue-400 font-black tracking-widest uppercase animate-pulse">عمار يبدع الآن...</p>
+                        <p className="text-xs text-blue-400 font-black tracking-widest uppercase animate-pulse">عمار يولد الصورة...</p>
                       </div>
                     ) : (
                       <div onClick={() => handleGenerate(scene.id)} className="cursor-pointer group/btn flex flex-col items-center">
                         <div className="w-16 h-16 mct-red-bg rounded-full flex items-center justify-center mb-4 group-hover/btn:scale-110 transition-transform shadow-2xl">
                            <SparklesIcon />
                         </div>
-                        <p className="font-black text-sm tracking-widest opacity-80 group-hover/btn:opacity-100 uppercase">توليد المشهد {scene.id}</p>
+                        <p className="font-black text-sm tracking-widest opacity-80 group-hover/btn:opacity-100 uppercase">توليد مشهد {scene.id}</p>
                       </div>
                     )}
                   </div>
                 )}
-                <div className="absolute top-4 left-4 mct-purple-bg/90 backdrop-blur-md px-4 py-1.5 rounded-xl text-xs text-white font-black border border-white/10">
+                <div className="absolute top-4 right-4 mct-purple-bg/90 backdrop-blur-md px-4 py-1.5 rounded-xl text-xs text-white font-black border border-white/10">
                    {scene.duration}
                 </div>
               </div>
@@ -232,7 +272,7 @@ const App: React.FC = () => {
                   <span className="mct-red-bg text-white w-10 h-10 rounded-xl flex items-center justify-center font-black shadow-lg text-lg italic">{scene.id}</span>
                   <h3 className="text-2xl font-black text-slate-800 tracking-tight">{scene.title}</h3>
                 </div>
-                <p className="text-base text-slate-600 leading-relaxed italic border-r-4 border-mct-green-bg pr-5 font-bold bg-slate-50/50 p-4 rounded-xl">
+                <p className="text-base text-slate-600 leading-relaxed italic border-l-4 border-mct-green-bg pl-5 font-bold bg-slate-50/50 p-4 rounded-xl">
                   "{scene.imageDescription}"
                 </p>
               </div>
@@ -246,11 +286,9 @@ const App: React.FC = () => {
           <div className="flex items-center gap-4">
             <button onClick={openWhatsAppGroup} className="flex items-center gap-3 bg-white/10 p-3 rounded-2xl hover:bg-white/20 transition-all border border-white/20 group">
                <GroupIcon />
-               <span className="hidden lg:inline text-white text-sm font-black">المجموعة</span>
             </button>
             <button onClick={openWhatsApp} className="flex items-center gap-3 bg-white/10 p-3 rounded-2xl hover:bg-white/20 transition-all border border-white/20">
                <WhatsAppIcon />
-               <span className="hidden lg:inline text-white text-sm font-black">الواتساب</span>
             </button>
           </div>
           
@@ -266,24 +304,23 @@ const App: React.FC = () => {
                 className="mct-purple-bg text-white px-8 py-4 rounded-[1.5rem] font-black text-lg flex items-center gap-3 hover:scale-110 transition-all border-4 border-white shadow-2xl active:rotate-2"
               >
                 <MessageIcon />
-                <span className="hidden sm:inline">عمار</span>
+                <span className="hidden sm:inline">تكلم مع عمار</span>
               </button>
           </div>
       </footer>
 
       {/* AI Assistant Chat UI */}
-      <div className={`fixed bottom-28 right-4 md:right-10 md:bottom-32 md:w-[450px] z-[100] transition-all duration-700 cubic-bezier(0.4, 0, 0.2, 1) transform ${isChatOpen ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-full opacity-0 scale-95 pointer-events-none'}`}>
+      <div className={`fixed bottom-28 left-4 md:left-10 md:bottom-32 md:w-[450px] z-[100] transition-all duration-700 cubic-bezier(0.4, 0, 0.2, 1) transform ${isChatOpen ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-full opacity-0 scale-95 pointer-events-none'}`}>
         <div className="bg-white rounded-[3rem] shadow-[0_20px_100px_rgba(0,0,0,0.4)] border-8 border-mct-purple-bg overflow-hidden h-[80vh] flex flex-col relative">
           
           <div className="mct-purple-bg p-8 text-white flex items-center justify-between relative">
             <div className="flex items-center gap-5">
               <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20 backdrop-blur-xl shadow-inner group overflow-hidden">
                 <SparklesIcon />
-                <div className="absolute inset-0 bg-white/5 group-hover:bg-white/10 transition-colors"></div>
               </div>
               <div>
                 <h4 className="font-black text-2xl tracking-tight">عمار MCT</h4>
-                <p className="text-[10px] font-bold text-purple-200 uppercase tracking-widest animate-pulse">متصل ومستعد للتوليد</p>
+                <p className="text-[10px] font-bold text-purple-200 uppercase tracking-widest animate-pulse">متصل ومستعد لمساعدتك</p>
               </div>
             </div>
             <button onClick={() => setIsChatOpen(false)} className="bg-white/10 p-3 rounded-2xl hover:bg-red-500/50 transition-all shadow-lg border border-white/10">
@@ -293,25 +330,24 @@ const App: React.FC = () => {
           
           <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-slate-50/80 custom-scrollbar">
             {chatMessages.map((msg, i) => (
-              <div key={i} className={`flex ${msg.role === 'user' ? 'justify-start' : 'justify-end'}`}>
+              <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[90%] p-6 rounded-[2.5rem] font-bold text-base shadow-lg leading-relaxed ${
                   msg.role === 'user' 
-                  ? 'bg-blue-600 text-white rounded-tr-none' 
-                  : 'bg-white text-slate-800 rounded-tl-none border border-slate-200'
+                  ? 'bg-blue-600 text-white rounded-tl-none' 
+                  : 'bg-white text-slate-800 rounded-tr-none border border-slate-200'
                 }`}>
                   {msg.text}
                 </div>
               </div>
             ))}
             {isTyping && (
-              <div className="flex justify-end">
+              <div className="flex justify-start">
                 <div className="bg-white px-6 py-4 rounded-full border border-slate-200 shadow-xl flex gap-2 items-center">
                    <div className="flex gap-1.5">
                       <div className="w-2 h-2 bg-mct-purple-bg rounded-full animate-bounce"></div>
                       <div className="w-2 h-2 bg-mct-purple-bg rounded-full animate-bounce delay-75"></div>
                       <div className="w-2 h-2 bg-mct-purple-bg rounded-full animate-bounce delay-150"></div>
                    </div>
-                   <span className="text-[10px] font-black text-mct-purple-bg/50 uppercase">عمار يكتب</span>
                 </div>
               </div>
             )}
@@ -324,7 +360,7 @@ const App: React.FC = () => {
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="اكتب رسالتك لـ عمار..."
+                placeholder="اسأل عمار عن أسعارنا أو انضم للمجموعة..."
                 className="flex-1 bg-slate-100 border-none rounded-[1.5rem] px-8 py-5 text-lg focus:ring-4 focus:ring-mct-purple-bg/20 outline-none font-black shadow-inner"
               />
               <button 
@@ -334,9 +370,6 @@ const App: React.FC = () => {
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" className="rotate-180"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
               </button>
-            </div>
-            <div className="mt-5 flex justify-center gap-4">
-               <button onClick={openWhatsAppGroup} className="text-[10px] font-black text-purple-600 uppercase border-b-2 border-purple-200 hover:text-purple-900 transition-colors">انضم لمجموعة الواتساب الرسمية</button>
             </div>
           </div>
         </div>

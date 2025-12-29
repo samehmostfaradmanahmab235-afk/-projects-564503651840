@@ -1,7 +1,6 @@
 
 import { GoogleGenAI, Type, Chat, FunctionDeclaration } from "@google/genai";
 
-// تعريف العمليات التي يمكن للروبوت القيام بها
 const controlTools: FunctionDeclaration[] = [
   {
     name: 'generate_full_storyboard',
@@ -24,14 +23,6 @@ const controlTools: FunctionDeclaration[] = [
       },
       required: ['sceneId'],
     },
-  },
-  {
-    name: 'get_contact_info',
-    parameters: {
-      type: Type.OBJECT,
-      description: 'الحصول على معلومات الاتصال والموقع التفصيلية للمجمع الحديث.',
-      properties: {},
-    },
   }
 ];
 
@@ -39,15 +30,18 @@ export class GeminiService {
   constructor() {}
 
   private getAI() {
-    return new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+    // Rely exclusively on the platform-provided API key
+    return new GoogleGenAI({ apiKey: process.env.API_KEY as string });
   }
 
   async generateSceneImage(description: string, highQuality: boolean = false): Promise<string | null> {
     try {
+      const ai = this.getAI();
+      // Use gemini-2.5-flash-image as the reliable default for quick generation
       const model = highQuality ? 'gemini-3-pro-image-preview' : 'gemini-2.5-flash-image';
-      const prompt = `Industrial cinematography, realistic architectural photography. Scene: ${description}. Professional lighting, 4k resolution, marketing quality, focusing on metallic rolling shutters and modern factory settings in Aden, Yemen.`;
+      const prompt = `Industrial high-end cinematography, realistic architectural photography of a modern factory in Aden. Scene: ${description}. Professional studio lighting, metallic rolling shutters, clean factory environment. Colors: Cream, Grey, and MCT brand colors (Red/Green/Purple).`;
       
-      const response = await this.getAI().models.generateContent({
+      const response = await ai.models.generateContent({
         model: model,
         contents: {
           parts: [{ text: prompt }]
@@ -55,7 +49,6 @@ export class GeminiService {
         config: {
           imageConfig: {
             aspectRatio: "16:9",
-            imageSize: highQuality ? "1K" : undefined
           }
         }
       });
@@ -66,17 +59,18 @@ export class GeminiService {
         }
       }
       return null;
-    } catch (error: any) {
-      console.error("Error generating image:", error);
-      throw error;
+    } catch (error) {
+      console.error("Image generation failed:", error);
+      return null;
     }
   }
 
   async enhanceScript(currentScript: string): Promise<string> {
     try {
-      const response = await this.getAI().models.generateContent({
+      const ai = this.getAI();
+      const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: `قم بتحسين وصف هذا المشهد ليكون أكثر سينمائية واحترافية: "${currentScript}". اجعل الوصف باللغة العربية مع التركيز على التفاصيل البصرية للأبواب السحابة.`,
+        contents: `أعد صياغة هذا الوصف ليكون وصفاً بصرياً دقيقاً لمحرك توليد صور ذكاء اصطناعي، ركز على الإضاءة والخامات المعدنية والأبواب السحابة الحديثة: "${currentScript}"`,
         config: { thinkingConfig: { thinkingBudget: 0 } }
       });
       return response.text || currentScript;
@@ -86,7 +80,8 @@ export class GeminiService {
   }
 
   createChat(systemInstruction: string): Chat {
-    return this.getAI().chats.create({
+    const ai = this.getAI();
+    return ai.chats.create({
       model: 'gemini-3-flash-preview',
       config: {
         systemInstruction: systemInstruction,
