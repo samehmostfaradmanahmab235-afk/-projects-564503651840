@@ -1,0 +1,7 @@
+{
+  "name": "Modern Complex for Rolling Shutters",
+  "description": "A high-end industrial landing page and interactive storyboard generator for the Modern Complex for Rolling Shutters Industry in Dar Saad.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
